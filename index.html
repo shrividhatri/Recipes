@@ -146,12 +146,17 @@
 #apply-filters:hover {
     background-color: #45a049;
 }
+        .hidden {
+    display: none;
+}
+
 
     </style>
 </head>
 <body>
     <header>
         <input type="text" id="searchBar" placeholder="Search recipes..." aria-label="Search recipes">
+        <button id="filterButton">Filter</button>
     </header>
     <div class="grid" id="recipeGrid"></div>
 
@@ -167,7 +172,7 @@
         </div>
         <!-- Sticky Bar for Missing Ingredients -->
     </div>
-    <div id="sticky-bar">
+    <div id="sticky-bar" class="hidden">
         <h3>Missing Ingredients</h3>
         <div id="missing-ingredients-list"></div>
         <button id="apply-filters">Filter Recipes</button>
@@ -270,7 +275,13 @@
         // Initialize the grid with all recipes
         populateGrid(recipes);
         // Get the sticky bar and missing ingredients list elements
+const filterButton = document.getElementById('filterButton');
 const stickyBar = document.getElementById('sticky-bar');
+
+filterButton.addEventListener('click', () => {
+    stickyBar.classList.toggle('hidden');
+});
+
 const missingIngredientsList = document.getElementById('missing-ingredients-list');
 const applyFiltersButton = document.getElementById('apply-filters');
 
