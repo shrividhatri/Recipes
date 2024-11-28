@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipes</title>
+    <title>Shopping places</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,19 +26,6 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             display: block;
-        }
-
-        #filterButton {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #filterButton:hover {
-            background-color: #0056b3;
         }
 
         .grid {
@@ -69,69 +56,77 @@
             font-size: 1rem;
         }
 
-        #sticky-bar {
+        .modal {
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
             width: 100%;
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-top: 1px solid #ddd;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            display: none;
         }
 
-        #sticky-bar h3 {
-            margin: 0;
-            padding-bottom: 10px;
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: left;
         }
 
-        #missing-ingredients-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        .modal-content h2 {
+            margin-top: 0;
         }
 
-        #missing-ingredients-list input {
-            margin-right: 5px;
+        .modal-content ul {
+            list-style: none;
+            padding: 0;
         }
 
-        #apply-filters {
-            margin-top: 10px;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
+        .modal-content ul li {
+            margin-bottom: 10px;
+        }
+
+        .close-btn {
+            background: #ff5c5c;
+            color: #fff;
             border: none;
             border-radius: 5px;
+            padding: 10px 15px;
             cursor: pointer;
         }
 
-        #apply-filters:hover {
-            background-color: #45a049;
+        .close-btn:hover {
+            background: #ff2c2c;
         }
     </style>
 </head>
 <body>
     <header>
-        <input type="text" id="searchBar" placeholder="Search recipes..." aria-label="Search recipes">
-        <button id="filterButton">Filter</button>
+        <input type="text" id="searchBar" placeholder="Search places..." aria-label="Search places">
     </header>
-    <div class="grid" id="recipeGrid"></div>
+    <div class="grid" id="placesGrid"></div>
 
-    <div id="sticky-bar">
-        <h3>Missing Ingredients</h3>
-        <div id="missing-ingredients-list"></div>
-        <button id="apply-filters">Filter Recipes</button>
+    <div class="modal" id="placeModal" role="dialog" aria-labelledby="placeTitle">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">Close</button>
+            <h2 id="placeTitle"></h2>
+            <h3>Distance</h3>
+            <p id="placeDistance"></p>
+            <h3>Cost</h3>
+            <p id="placePurpose"></p>
+        </div>
     </div>
 
     <script>
-        // Recipes data
-        const recipes = [
-            {
+        // Places data directly embedded in the file
+        const places = [
+    
+    {
                 title: "Uggani",
                 image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzh98sfuLiaPmpU4iVe_OIrXcbQ3fkXMUDFmNs3IcskFpp7EnnlqOeGZGhqy8mDCStcSRulnaNOIRFa-yLfkHfGutMj6OYIVma9Ku5XARfRQ3ye77kSOlKljU6efS43MegZMczlHD_hf1b/s1600/1532787389406_wm.jpg",
                 ingredients: ["Borugulu", "Tiragamatha", "Onion", "Green chilli", "Peanuts", "Tomato", "Pappula podi"],
@@ -149,28 +144,70 @@
                 ingredients: ["Godhuma pindi", "Biyyapu pindi", "Senagapindi", "Onion", "Chilli", "Curd"],
                 instructions: "Add 1:1 biyyapu pindi and godhuma pindi..."
             }
-        ];
+]
+;
 
-        const recipeGrid = document.getElementById('recipeGrid');
-        const stickyBar = document.getElementById('sticky-bar');
-        const filterButton = document.getElementById('filterButton');
+        const placesGrid = document.getElementById('placesGrid');
+        const placeModal = document.getElementById('placeModal');
+        const closeModal = document.getElementById('closeModal');
+        const placeTitle = document.getElementById('placeTitle');
+        const placeDistance = document.getElementById('placeDistance');
+        const placePurpose = document.getElementById('placePurpose');
+        const searchBar = document.getElementById('searchBar');
 
-        // Populate the recipe grid
-        function populateGrid() {
-            recipeGrid.innerHTML = recipes.map(recipe => `
-                <div class="grid-item">
-                    <img src="${recipe.image}" alt="${recipe.title}">
-                    <h3>${recipe.title}</h3>
-                </div>
-            `).join('');
+        // Populate the grid with places
+        function populateGrid(places) {
+            placesGrid.innerHTML = '';
+            places.forEach((place, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.setAttribute('tabindex', '0');
+                gridItem.setAttribute('role', 'button');
+                gridItem.setAttribute('aria-label', `Open place: ${place.name}`);
+                gridItem.innerHTML = `
+                    <img src="${place.image}" alt="${place.name}">
+                    <h3>${place.name}</h3>
+                `;
+                gridItem.addEventListener('click', () => displayPlace(index));
+                gridItem.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') displayPlace(index);
+                });
+                placesGrid.appendChild(gridItem);
+            });
         }
 
-        populateGrid();
+        // Display place details in modal
+        function displayPlace(index) {
+            const place = places[index];
+            placeTitle.textContent = place.name;
+            placeDistance.textContent = place.distance;
+            placePurpose.textContent = place.purpose;
+            placeModal.style.display = 'flex';
+        }
 
-        // Toggle the sticky bar visibility
-        filterButton.addEventListener('click', () => {
-            stickyBar.style.display = stickyBar.style.display === 'none' || stickyBar.style.display === '' ? 'block' : 'none';
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            placeModal.style.display = 'none';
         });
+
+        // Close modal on clicking outside
+        placeModal.addEventListener('click', (event) => {
+            if (event.target === placeModal) {
+                placeModal.style.display = 'none';
+            }
+        });
+
+        // Filter places based on search
+        searchBar.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filteredPlaces = places.filter(place =>
+                place.name.toLowerCase().includes(query)
+            );
+            populateGrid(query ? filteredPlaces : places);
+        });
+
+        // Initialize the grid with all places
+        populateGrid(places);
     </script>
 </body>
 </html>
