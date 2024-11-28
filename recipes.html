@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #f4f4f4;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #searchBar {
+            width: 90%;
+            max-width: 400px;
+            padding: 10px;
+            margin: 10px auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: block;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .grid-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            text-align: center;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .grid-item h3 {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal-content ul li {
+            margin-bottom: 10px;
+        }
+
+        .close-btn {
+            background: #ff5c5c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: #ff2c2c;
+        }
+        #sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#sticky-bar h3 {
+    margin: 0;
+    padding-bottom: 10px;
+}
+
+#missing-ingredients-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#missing-ingredients-list input {
+    margin-right: 5px;
+}
+
+#apply-filters {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#apply-filters:hover {
+    background-color: #45a049;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <input type="text" id="searchBar" placeholder="Search recipes..." aria-label="Search recipes">
+    </header>
+    <div class="grid" id="recipeGrid"></div>
+
+    <div class="modal" id="recipeModal" role="dialog" aria-labelledby="recipeTitle">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">Close</button>
+            <h2 id="recipeTitle"></h2>
+            <h3>Instructions</h3>
+            <p id="recipeInstructions"></p>
+            <h3>Ingredients</h3>
+            <ul id="ingredientsList"></ul>
+            
+        </div>
+        <!-- Sticky Bar for Missing Ingredients -->
+    </div>
+    <div id="sticky-bar">
+        <h3>Missing Ingredients</h3>
+        <div id="missing-ingredients-list"></div>
+        <button id="apply-filters">Filter Recipes</button>
+    </div>
+
+    <script>
+        // Recipes data directly embedded in the file
+        const recipes = [
+        {
+    "title": "Uggani",
+    "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzh98sfuLiaPmpU4iVe_OIrXcbQ3fkXMUDFmNs3IcskFpp7EnnlqOeGZGhqy8mDCStcSRulnaNOIRFa-yLfkHfGutMj6OYIVma9Ku5XARfRQ3ye77kSOlKljU6efS43MegZMczlHD_hf1b/s1600/1532787389406_wm.jpg",
+    "ingredients": ["Borugulu","Oil","Tiragamatha","Onion","Green chilli","Peanuts","Salt","Tomato","Turmeric","Pappula podi"],
+    "instructions": "Soak the borugulu in water for a while and squeeze them lightly. On the pan, add oil, peanuts and tiragamatha and fry them till they get red. Add chillis cut in circles and onion pieces. Then add turmeric, salt and tomato pieces and cook till the pieces soften. Once the vegetables cook, add the borugulu and fry for a while. Add some pappula podi at last and serve hot."
+},
+    {
+        "title": "Poha Cheela",
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy24mbzg3ch05BKacMxW0CTnj2Z-0ATYXWqQ&s",
+        "ingredients": ["Poha","Chilli","Onion","Pepper powder","Salt","Jeera","Oil"],
+        "instructions": "Soak poha and mash them in a bowl. Add chilli and onion after cutting them into small pieces. Then add pepper pwder, salt and jeera. Then add water and make it a thin batter. Spread it on the pan and brush the cheela with oil and serve it hot."
+    },
+    {
+        "title": "3 pindi Dosa",
+        "image": "https://cdn2.foodviva.com/static-content/food-images/south-indian-recipes/wheat-flour-dosa/wheat-flour-dosa.jpg",
+        "ingredients": ["Godhuma pindi","Biyyapu pindi","Senagapindi","Onion","Chilli","Curd","Salt",],
+        "instructions": "Add 1:1 biyyapu pindi and godhuma pindi and add a spoon of senagapindi. Add 2 onions and 2 chillis cut into small pieces. Then add 2 spoons of curd and leave aside for 10 minutes. Make the batter into bajji pindi consistency. Make the pan very hot and pour the batter. Then brush it with oil, flip it, cook it and serve it hot."
+    }
+        ]
+
+        const recipeGrid = document.getElementById('recipeGrid');
+        const recipeModal = document.getElementById('recipeModal');
+        const closeModal = document.getElementById('closeModal');
+        const recipeTitle = document.getElementById('recipeTitle');
+        const ingredientsList = document.getElementById('ingredientsList');
+        const recipeInstructions = document.getElementById('recipeInstructions');
+        const searchBar = document.getElementById('searchBar');
+
+        // Populate the grid with recipes
+        function populateGrid(recipes) {
+            recipeGrid.innerHTML = '';
+            recipes.forEach((recipe, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.setAttribute('tabindex', '0');
+                gridItem.setAttribute('role', 'button');
+                gridItem.setAttribute('aria-label', `Open recipe: ${recipe.title}`);
+                gridItem.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.title}">
+                    <h3>${recipe.title}</h3>
+                `;
+                gridItem.addEventListener('click', () => displayRecipe(index));
+                gridItem.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') displayRecipe(index);
+                });
+                recipeGrid.appendChild(gridItem);
+            });
+        }
+
+        // Display recipe details in modal
+        function displayRecipe(index) {
+            const recipe = recipes[index];
+            recipeTitle.textContent = recipe.title;
+            ingredientsList.innerHTML = recipe.ingredients.map((ingredient, i) => {
+                const checked = localStorage.getItem(`${recipe.title}-ingredient-${i}`) === 'true';
+                return `<li><input type="checkbox" data-recipe="${recipe.title}" data-index="${i}" ${checked ? 'checked' : ''}> ${ingredient}</li>`;
+            }).join('');
+            recipeInstructions.textContent = recipe.instructions;
+            recipeModal.style.display = 'flex';
+
+            // Save checkbox state
+            ingredientsList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const key = `${e.target.dataset.recipe}-ingredient-${e.target.dataset.index}`;
+                    localStorage.setItem(key, e.target.checked);
+                });
+            });
+        }
+
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            recipeModal.style.display = 'none';
+        });
+
+        // Close modal on clicking outside
+        recipeModal.addEventListener('click', (event) => {
+            if (event.target === recipeModal) {
+                recipeModal.style.display = 'none';
+            }
+        });
+
+        // Filter recipes based on search
+        searchBar.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filteredRecipes = recipes.filter(recipe =>
+                recipe.title.toLowerCase().includes(query) ||
+                recipe.ingredients.some(ingredient => ingredient.toLowerCase().includes(query))
+            );
+            populateGrid(query ? filteredRecipes : recipes);
+        });
+
+        // Initialize the grid with all recipes
+        populateGrid(recipes);
+        // Get the sticky bar and missing ingredients list elements
+const stickyBar = document.getElementById('sticky-bar');
+const missingIngredientsList = document.getElementById('missing-ingredients-list');
+const applyFiltersButton = document.getElementById('apply-filters');
+
+// Keep track of selected missing ingredients
+let missingIngredients = [];
+
+// Create checkboxes for ingredients in all recipes
+function populateMissingIngredients() {
+    const allIngredients = new Set();
+    recipes.forEach(recipe => {
+        recipe.ingredients.forEach(ingredient => {
+            allIngredients.add(ingredient);
+        });
+    });
+
+    missingIngredientsList.innerHTML = ''; // Clear previous checkboxes
+    allIngredients.forEach(ingredient => {
+        const ingredientCheckbox = document.createElement('label');
+        ingredientCheckbox.innerHTML = `
+            <input type="checkbox" class="missing-ingredient" data-ingredient="${ingredient}"> ${ingredient}
+        `;
+        missingIngredientsList.appendChild(ingredientCheckbox);
+    });
+}
+
+// Filter recipes based on missing ingredients
+function filterRecipesByMissingIngredients() {
+    const selectedMissingIngredients = Array.from(
+        document.querySelectorAll('.missing-ingredient:checked')
+    ).map(checkbox => checkbox.dataset.ingredient);
+
+    const filteredRecipes = recipes.filter(recipe => {
+        return !recipe.ingredients.some(ingredient =>
+            selectedMissingIngredients.includes(ingredient)
+        );
+    });
+
+    populateGrid(filteredRecipes); // Update grid with filtered recipes
+}
+
+// Set up the "Filter Recipes" button to apply the filters
+applyFiltersButton.addEventListener('click', filterRecipesByMissingIngredients);
+
+// Initialize the missing ingredients checkboxes
+populateMissingIngredients();
+
+    </script>
+</body>
+</html>
