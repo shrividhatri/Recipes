@@ -103,50 +103,6 @@
         .close-btn:hover {
             background: #ff2c2c;
         }
-        #sticky-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #f4f4f4;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-#sticky-bar h3 {
-    margin: 0;
-    padding-bottom: 10px;
-}
-
-#missing-ingredients-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-#missing-ingredients-list input {
-    margin-right: 5px;
-}
-
-#apply-filters {
-    margin-top: 10px;
-    padding: 10px 15px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#apply-filters:hover {
-    background-color: #45a049;
-}
-
     </style>
 </head>
 <body>
@@ -165,12 +121,6 @@
             <ul id="ingredientsList"></ul>
             
         </div>
-        <!-- Sticky Bar for Missing Ingredients -->
-    </div>
-    <div id="sticky-bar">
-        <h3>Missing Ingredients</h3>
-        <div id="missing-ingredients-list"></div>
-        <button id="apply-filters">Filter Recipes</button>
     </div>
 
     <script>
@@ -269,54 +219,8 @@
 
         // Initialize the grid with all recipes
         populateGrid(recipes);
-        // Get the sticky bar and missing ingredients list elements
-const stickyBar = document.getElementById('sticky-bar');
-const missingIngredientsList = document.getElementById('missing-ingredients-list');
-const applyFiltersButton = document.getElementById('apply-filters');
-
-// Keep track of selected missing ingredients
-let missingIngredients = [];
-
-// Create checkboxes for ingredients in all recipes
-function populateMissingIngredients() {
-    const allIngredients = new Set();
-    recipes.forEach(recipe => {
-        recipe.ingredients.forEach(ingredient => {
-            allIngredients.add(ingredient);
-        });
-    });
-
-    missingIngredientsList.innerHTML = ''; // Clear previous checkboxes
-    allIngredients.forEach(ingredient => {
-        const ingredientCheckbox = document.createElement('label');
-        ingredientCheckbox.innerHTML = `
-            <input type="checkbox" class="missing-ingredient" data-ingredient="${ingredient}"> ${ingredient}
-        `;
-        missingIngredientsList.appendChild(ingredientCheckbox);
-    });
-}
-
-// Filter recipes based on missing ingredients
-function filterRecipesByMissingIngredients() {
-    const selectedMissingIngredients = Array.from(
-        document.querySelectorAll('.missing-ingredient:checked')
-    ).map(checkbox => checkbox.dataset.ingredient);
-
-    const filteredRecipes = recipes.filter(recipe => {
-        return !recipe.ingredients.some(ingredient =>
-            selectedMissingIngredients.includes(ingredient)
-        );
-    });
-
-    populateGrid(filteredRecipes); // Update grid with filtered recipes
-}
-
-// Set up the "Filter Recipes" button to apply the filters
-applyFiltersButton.addEventListener('click', filterRecipesByMissingIngredients);
-
-// Initialize the missing ingredients checkboxes
-populateMissingIngredients();
-
     </script>
 </body>
 </html>
+Can you add a sticky option on the bottom of the website for the user to select the ingredients not available with the person to filter the recipes
+
